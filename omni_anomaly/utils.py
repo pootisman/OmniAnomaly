@@ -5,7 +5,7 @@ import pickle
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 
-prefix = "processed"
+global_prefix = "processed"
 
 
 def save_z(z, filename='z'):
@@ -37,8 +37,8 @@ def get_data_dim(dataset):
         raise ValueError('unknown dataset '+str(dataset))
 
 
-def get_data(dataset, max_train_size=None, max_test_size=None, print_log=True, do_preprocess=True, train_start=0,
-             test_start=0):
+def get_data(dataset:str, max_train_size:int=None, max_test_size:int=None, print_log:bool=True, do_preprocess:bool=True, train_start:int=0,
+             test_start:int=0, prefix:str = global_prefix ):
     """
     get data from pkl files
 
