@@ -3,7 +3,7 @@ import os
 import pickle
 
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 global_prefix = "processed"
 
@@ -72,32 +72,35 @@ def get_data(dataset:str, max_train_size:int=None, max_test_size:int=None, print
     except (KeyError, FileNotFoundError):
         test_label = None
     if do_preprocess:
-        train_data = preprocess(train_data)
-        test_data = preprocess(test_data)
+        (train_data, test_data) = preprocess(train_data, test_data)
     print("train set shape: ", train_data.shape)
     print("test set shape: ", test_data.shape)
     print("test set label shape: ", test_label.shape)
     return (train_data, None), (test_data, test_label)
 
 
-def preprocess(df):
+def preprocess(trdf, tedf):
     """returns normalized and standardized data.
     """
 
-    df = np.asarray(df, dtype=np.float32)
+    trdf = np.asarray(trdf, dtype=np.float32)
+    tedf = np.asarray(tedf, dtype=np.float32)
 
-    if len(df.shape) == 1:
+    if len(trdf.shape) == 1:
         raise ValueError('Data must be a 2-D array')
 
-    if np.any(sum(np.isnan(df)) != 0):
+    if np.any(sum(np.isnan(trdf)) != 0):
         print('Data contains null values. Will be replaced with 0')
-        df = np.nan_to_num()
+        trdf = np.nan_to_num()
 
     # normalize data
-    df = MinMaxScaler().fit_transform(df)
+    SSC = StandardScaler()
+    SSC.fit(trdf)
+    trdf = SSC.transform(trdf)
+    tedf = SSC.transform(tedf)
     print('Data normalized')
 
-    return df
+    return (trdf, tedf)
 
 
 def minibatch_slices_iterator(length, batch_size,
